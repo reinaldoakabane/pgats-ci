@@ -13,6 +13,10 @@ on:
     # Cada numero é algo: 1º - minuto, 2º - hora, 3º dia do mes. 4º mes, 5 - dia da semana,
     # o * é para algo não especifico, domingo seria o dia 0
     - cron: '0 0 * * 0'
+
+  push: # quando acontecer um push ele roda a pipeline
+    branches: # a branch que ira executar
+      - master
 # Tarefas dento da pipeline = jobs
 jobs:
   # Nome do Job
@@ -45,3 +49,11 @@ jobs:
       #Executar os testes e2e
       - name: Executando testes e2e
         run: yarn run e2e
+
+      # Salvar relatorio
+      - name: Salvando relatórios de testes
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }} # isso é para sempre salvar o relatorio mesmo que a execução deu erro
+        with:
+          path: ./playwright-report # caminho onde sera salvo
+          name: Relatório de testes E2E # Nome do relatorio

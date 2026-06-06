@@ -9,6 +9,10 @@ name: 'N1 - Execução Manual'
 on:
   workflow_dispatch:
 
+  push: # quando acontecer um push ele roda a pipeline
+    branches: # a branch que ira executar
+      - master
+
 # Tarefas dento da pipeline = jobs
 jobs:
   # Nome do Job
@@ -41,3 +45,11 @@ jobs:
       #Executar os testes e2e
       - name: Executando testes e2e
         run: yarn run e2e
+
+      # Salvar relatorio
+      - name: Salvando relatórios de testes
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }} # isso é para sempre salvar o relatorio mesmo que a execução deu erro
+        with:
+          path: ./playwright-report # caminho onde sera salvo
+          name: Relatório de testes E2E # Nome do relatorio
