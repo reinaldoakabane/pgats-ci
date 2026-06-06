@@ -1,92 +1,103 @@
 # CI de Nível 04 - Pipeline Integrada ao Build do Código
 
 # Nome da pipeline
-name: 'Execução Integrada'
+name: 'N4 - Execução Integrada'
 
 # Gatilhos / triggers - regras de disparo
 # Gatilho por conclusao de outra pipeline = workflow_run
 # Gatilho manual = workflow dispatch
 on:
-    workflow_dispatch:
+  workflow_dispatch:
 # Tarefas dento da pipeline = jobs
 
+  push: # quando acontecer um push ele roda a pipeline
+    branches: # a branch que ira executar
+      - master
+
 jobs:
-    # Nome do Job
-    inspecao:
-        # Maquina onde o job vai rodar
-        runs-on: ubuntu-latest
+  # Nome do Job
+  inspecao:
+    # Maquina onde o job vai rodar
+    runs-on: ubuntu-latest
 
-        # Passos do job
-        steps:
-            # Clone do projeto
-            - uses: actions/checkout@v4
+    # Passos do job
+    steps:
+      # Clone do projeto
+      - uses: actions/checkout@v4
 
-            # Instalação do node
-            - uses: actions/setup-node@v4
-              with:
-                node-version: latest
+      # Instalação do node
+      - uses: actions/setup-node@v4
+        with:
+          node-version: latest
 
-            # Instalação do yarn
-            - name: Instalando yarn
-              run: npm install -g yarn
+      # Instalação do yarn
+      - name: Instalando yarn
+        run: npm install -g yarn
 
-            # Instalação das dependencias
-            - name: Instalando dependencias
-              run: yarn
+      # Instalação das dependencias
+      - name: Instalando dependencias
+        run: yarn
 
-            - name: Inspeção de Código
-              run: yarn lint # Para rodar tem que estar configurado no projeto  
+      - name: Inspeção de Código
+        run: yarn lint # Para rodar tem que estar configurado no projeto
 
+  unidade:
+    runs-on: ubuntu-latest
+    needs: [inspecao] # Significa que esse job só irá rodar depois do outro acima que escolhemos o inspecao
 
-    unidade:
-      runs-on: ubuntu-latest
-      needs: [inspecao]    # Significa que esse job só irá rodar depois do outro acima que escolhemos o inspecao
+    steps:
+      - uses: actions/checkout@v4
 
-      steps:
-        - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: latest
 
-        - uses: actions/setup-node@v4
-          with:
-              node-version: latest
+      - name: Instalando yarn
+        run: npm install -g yarn
 
-        - name: Instalando yarn
-          run: npm install -g yarn
+      - name: Instalando dependencias
+        run: yarn
 
-        - name: Instalando dependencias
-          run: yarn
+      - name: Rodando testes unitários
+        run: yarn run test
 
-        - name: Rodando testes unitários
-          run: yarn run test                  
+  e2e-tests:
+    runs-on: ubuntu-latest
+    needs: [inspecao]
 
-    e2e-tests:
-      runs-on: ubuntu-latest
-      needs: [inspecao]
+    steps:
+      - uses: actions/checkout@v4
 
-      steps:
-        - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: latest
 
-        - uses: actions/setup-node@v4
-          with:
-            node-version: latest
+      - name: Instalando yarn
+        run: npm install -g yarn
 
-        - name: Instalando yarn
-          run: npm install -g yarn
+      - name: Instalando dependencias
+        run: yarn
 
-        - name: Instalando dependencias
-          run: yarn
+        # Instalação dos Browsers do Playwright
+      - name: Instalando Browsers do Playwright
+        run:
+          yarn playwright install
 
-          # Instalação dos Browsers do Playwright
-        - name: Instalando Browsers do Playwright
-          run: yarn playwright install
+          #Executar os testes e2e
+      - name: Executando testes e2e
+        run: yarn run e2e
 
-            #Executar os testes e2e
-        - name: Executando testes e2e
-          run: yarn run e2e
+      - name: Salvando relatórios de testes
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }} # isso é para sempre salvar o relatorio mesmo que a execução deu erro
+        with:
+          path: ./playwright-report # caminho onde sera salvo
+          name: Relatório de testes E2E # NOme do relatorio
 
-    deploy:
-      runs-on: ubuntu-latest
-      needs: [unidade, e2e-tests]
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [unidade, e2e-tests]
 
-      steps: 
-        - name: Simulação de Deploy
-          run: echo 'Deploy sendo realizado...'        
+    steps:
+      - name: Simulação de Deploy
+        run: echo 'Deploy sendo realizado...'

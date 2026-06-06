@@ -1,48 +1,47 @@
-# CI de Nível 02 - Execução Agendada 
+# CI de Nível 02 - Execução Agendada
 
 # Nome da pipeline
-name: 'Scheduled Execution'
+name: 'N2 - Execução Agendada'
 
 # Gatilhos / triggers - regras de disparo
 # Gatilho agendad0 = schedule
 
-
 # Gatilho manual = workflow dispatch
 on:
-    schedule:
-      # cronograma de execução
-      # Cada numero é algo: 1º - minuto, 2º - hora, 3º dia do mes. 4º mes, 5 - dia da semana,
-      # o * é para algo não especifico, domingo seria o dia 0
-      - cron: '0 0 * * 0'
+  schedule:
+    # cronograma de execução
+    # Cada numero é algo: 1º - minuto, 2º - hora, 3º dia do mes. 4º mes, 5 - dia da semana,
+    # o * é para algo não especifico, domingo seria o dia 0
+    - cron: '0 0 * * 0'
 # Tarefas dento da pipeline = jobs
 jobs:
-    # Nome do Job
-    e2e-tests:
-        # Maquina onde o job vai rodar
-        runs-on: ubuntu-latest
+  # Nome do Job
+  e2e-tests:
+    # Maquina onde o job vai rodar
+    runs-on: ubuntu-latest
 
-        # Passos do job
-        steps:
-            # Clone do projeto
-            - uses: actions/checkout@v4
+    # Passos do job
+    steps:
+      # Clone do projeto
+      - uses: actions/checkout@v4
 
-            # Instalação do node
-            - uses: actions/setup-node@v4
-              with:
-                node-version: 24.x
+      # Instalação do node
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
 
-            # Instalação do yarn
-            - name: Instalando yarn
-              run: npm install -g yarn
+      # Instalação do yarn
+      - name: Instalando yarn
+        run: npm install -g yarn
 
-            # Instalação das dependencias
-            - name: Instalando dependencias
-              run: yarn
+      # Instalação das dependencias
+      - name: Instalando dependencias
+        run: yarn
 
-            # Instalação dos Browsers do Playwright
-            - name: Instalando Browsers do Playwright
-              run: yarn playwright install
+      # Instalação dos Browsers do Playwright
+      - name: Instalando Browsers do Playwright
+        run: yarn playwright install
 
-            #Executar os testes e2e
-            - name: Executando testes e2e
-              run: yarn run e2e  
+      #Executar os testes e2e
+      - name: Executando testes e2e
+        run: yarn run e2e
