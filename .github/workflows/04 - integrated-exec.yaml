@@ -8,7 +8,7 @@ name: 'N4 - Execução Integrada'
 # Gatilho manual = workflow dispatch
 on:
   workflow_dispatch:
-# Tarefas dento da pipeline = jobs
+  # Tarefas dento da pipeline = jobs
 
   push: # quando acontecer um push ele roda a pipeline
     branches: # a branch que ira executar
