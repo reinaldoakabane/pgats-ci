@@ -9,7 +9,7 @@ name: 'Scheduled Execution'
 
 # Gatilho manual = workflow dispatch
 on:
-    scheduled:
+    schedule:
       # cronograma de execução
       # Cada numero é algo: 1º - minuto, 2º - hora, 3º dia do mes. 4º mes, 5 - dia da semana,
       # o * é para algo não especifico, domingo seria o dia 0
